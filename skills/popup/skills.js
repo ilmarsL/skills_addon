@@ -1,4 +1,4 @@
-var skillsArray = [];
+var skillsArray = new Array();
 
 function myfunc(){
    console.log('test');
@@ -32,6 +32,8 @@ function myfunc(){
                   'uri' : response.skill.uri,
                   'date' : response.skill.date
                }
+               console.log('type of skillsArray');
+               console.log(skillsArray);
                skillsArray.push(newStoredSkill);
       
                browser.storage.local.set({'skills' : skillsArray})

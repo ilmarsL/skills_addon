@@ -7,9 +7,29 @@
         This is page.
         <input type="button" value="Export json" id="export-button">
         <input type="file" value="Import json" id="import-button">
-        <ul id="all-skills">
+        <h3>Stats:</h3>
+        <table>
+            <thead>
+                <tr><th>Skill</th><th>Count</th></tr>
+            </thead>
+            <tbody id="sorted-skills-container">
+            </tbody>
+        </table>
+        
+        <h3>All skills:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Skill</th>
+                    <th>url</th>
+                    <th>date</th>
+                    <th>delete</th>
+                </tr>
+            </thead>
+            <tbody id="all-skills-table">
 
-        </ul>
+            </tbody>
+        </table>
         <script src="stats.js"></script>
     </body>    
 </html>
