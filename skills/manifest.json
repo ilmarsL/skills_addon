@@ -1,0 +1,28 @@
+{
+    "manifest_version": 2,
+    "name": "Skills",
+    "version": "1.0.3",
+    "content_scripts":[
+      {
+        "matches": ["*://*/*"],
+        "js": ["content_scripts/find_skills.js"]
+      }
+    ],
+    "description": "Collects skills from viewed pages",
+    "icons": {
+        "48": "icons/icon48.png"
+      },
+    "permissions": [
+          "activeTab",
+          "storage",
+          "unlimitedStorage"
+        ],
+    "browser_action": {
+            "default_icon": "icons/icon48.png",
+            "default_title": "Skills",
+            "default_popup": "popup/menu.html"
+        },
+    "background": {
+      "scripts" : ["bground.js"]
+    }
+}

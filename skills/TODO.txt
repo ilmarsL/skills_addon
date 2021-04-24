@@ -1,0 +1,18 @@
+Steps to reproduce "TypeError: can't access dead object" (on temporary addon)
+1. Save some names from tab using 'Add skill' button
+2. Close tab.
+
+Opening and closing popup also seems to trigger the error.
+Clicking on developer tools also trigers exception
+Loosing focus of window and then clicking 'S' button;.
+
+Could be because of how selected text get's captured.
+
+-------------------------
+When inspecting local storage, it doesn't refresh until you press 'inspect' again (refresh button doesnt work)  
+--------------------------
+
+- Add one selected skill and save it to persistent storage;
+- Highlight skills autmatically;
+- save all skills found on page;
+- dump all skills do downloadable .json file
