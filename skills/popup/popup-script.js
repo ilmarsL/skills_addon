@@ -111,6 +111,7 @@ function addSkillToPopup(skill){
    newSkill.innerText = skill;
    curSkillContainer.append(newSkill);
 }
+console.log('Popup script running');
 
 browser.tabs.executeScript({file: "/content_scripts/find_skills.js"})
 .then(myfunc).catch(reportExecuteScriptError);

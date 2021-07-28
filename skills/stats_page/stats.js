@@ -85,7 +85,7 @@ function countSkills(skillsArray){
    
    for (var i = 0; i < skillsArray.length; i++){
       //check if element alreadu exists  
-      const found = countedSkills.findIndex(element => element.skillName == skillsArray[i].skill);
+      const found = countedSkills.findIndex(element => element.skillName.toLowerCase() == skillsArray[i].skill.toLowerCase());
       console.log('found: ' + found);
       if (found != -1){
          console.log('increasing index; ');

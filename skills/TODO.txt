@@ -1,5 +1,19 @@
+Move skill saving to 'save button'?
+---------------------
+Manually editable 'url to save' field
+--------------------------------
+Uninstalling addon does not clear saved dat from storage;
+(not sure if this is a problem;)
+---------------------------
+Add checker for if page has been visited. (linkedin specific, should search for url starting with https://www.linkedin.com/jobs/view/2474687159)
+-------------
 - add delete button
 ------------------------
+- Make addon button change color, if this url is in storage;
+-------------------
+Manualy add skill;
+
+-------------------
 Fix error:
 Steps to reproduce "TypeError: can't access dead object" (on temporary addon)
 1. Save some names from tab using 'Add skill' button
@@ -18,6 +32,17 @@ Firefox bug?
 When inspecting local storage, it doesn't refresh until you press 'inspect' again (refresh button doesnt work)  
 --------------------------
 
+- Test if .toLowerCase() works in stats;
+
+- In stats page, make url a href and make it shorter (LinkedIn URLs are too long).
+
+- highlight skills after selected
+
 - Highlight skills autmatically;
 
+- Test in chrome
+
+
+---------------------------------
 - This can work as bookmark
+
