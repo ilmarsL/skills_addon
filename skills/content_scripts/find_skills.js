@@ -13,7 +13,7 @@ window.hasRun = true;
 
 
 
-console.log('My content script');
+console.log('My content script from windows, built using webext');
 var skillsArray = [];
 
 browser.runtime.onMessage.addListener((message) => {
