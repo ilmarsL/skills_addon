@@ -34,9 +34,7 @@ function myfunc(){
                }
                console.log('type of skillsArray');
                console.log(skillsArray);
-               skillsArray.push(newStoredSkill);
-               
-                           
+               skillsArray.push(newStoredSkill);                          
             });
       }
 
