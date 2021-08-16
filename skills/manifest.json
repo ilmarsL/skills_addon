@@ -1,11 +1,11 @@
 {
     "manifest_version": 2,
     "name": "Skills",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "content_scripts":[
       {
         "matches": ["*://*/*"],
-        "js": ["content_scripts/find_skills.js"]
+        "js": ["content_scripts/content_script.js"]
       }
     ],
     "description": "Collects skills from viewed pages",

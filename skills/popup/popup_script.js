@@ -1,4 +1,5 @@
 var skillsArray = new Array();
+var isSaved = true;
 
 function myfunc(){
    console.log('test');
@@ -14,18 +15,17 @@ function myfunc(){
    console.log('Added event listener');
    document.addEventListener("click", (e) => {
       //load data at start
-     
-
       function setItem() {
          console.log("Item set");
-       }
+      }
 
-      function buttonPress(tabs){
-         
+      function buttonPress(tabs){         
          browser.tabs.sendMessage(tabs[0].id, {
             command: "button"
             }).then(response =>{
                addSkillToPopup(response.skill.skillName)
+               isSaved = false;
+               document.getElementById('save-status').innerText = '*not  saved';
                console.log('writing data to storage')
                let newStoredSkill = {
                   'skill': response.skill.skillName,
@@ -35,14 +35,17 @@ function myfunc(){
                console.log('type of skillsArray');
                console.log(skillsArray);
                skillsArray.push(newStoredSkill);
-      
-               browser.storage.local.set({'skills' : skillsArray})
-               .then(setItem);
-             
+               
+                           
             });
       }
 
       function buttonSavePress(tabs){
+         isSaved = true;
+         document.getElementById('save-status').innerText = '';
+         //overwrites the whole array
+         browser.storage.local.set({'skills' : skillsArray})
+         .then(setItem); 
          //console.log('sending save message');
          //browser.tabs.sendMessage(tabs[0].id, {
          //   command: "buttonSave"
@@ -113,7 +116,7 @@ function addSkillToPopup(skill){
 }
 console.log('Popup script running');
 
-browser.tabs.executeScript({file: "/content_scripts/find_skills.js"})
+browser.tabs.executeScript({file: "/content_scripts/content_script.js"})
 .then(myfunc).catch(reportExecuteScriptError);
 
 //Get active tab url, to show only skills from this url
