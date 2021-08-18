@@ -122,6 +122,7 @@ function myfunc(){
 */
 function reportExecuteScriptError(error) {
    console.error(`Failed to execute content script: ${error.message}`);
+   myfunc();
 }
 
 /**
