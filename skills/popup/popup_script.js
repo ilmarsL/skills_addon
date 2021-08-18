@@ -28,6 +28,7 @@ function getCurrentSkills(tabs){
          isSaved = response.currentPageSkills.isSaved;
          updateSaveStatus();     
       });
+      return(tabs); //pass further down the chain
    }
    catch(e){
       console.log('Error getting current skills from content script ' + e);
@@ -56,6 +57,8 @@ function myfunc(){
       //load data at start
       function saveSuccess(tabs) {
          console.log('Sending "saved" message to content script');
+         isSaved = true;
+         updateSaveStatus();
          browser.tabs.sendMessage(tabs[0].id, {
             command: "buttonSave"
             });
@@ -80,12 +83,8 @@ function myfunc(){
 
       function buttonSavePress(tabs){
          //TODO emtpy array got sent to localstorage
-         isSaved = true;
-         updateSaveStatus();
-         //add data from popup to tempSkillsArray? But it should be loaded on open;
-         
          //overwrites the whole array
-         console.log('Saving following skills to local storage:');
+         console.log('Save button pressed, tempSkillsArray :');
          console.log(tempSkillsArray);
          browser.storage.local.set({'skills' : tempSkillsArray})
          .then(() => {
@@ -128,23 +127,27 @@ function reportExecuteScriptError(error) {
 /**
  * Loads data from local storage at the start of the script (Opening popup)
  */
-function loadExistingSkills(currentURL){
-   console.log('Loading data');
+function loadExistingSkills(tabs){
+   currentURL  = tabs[0].url;
+   console.log('Loading data from storage');
+   console.log('currentURL: ' + currentURL);
    browser.storage.local.get('skills')
    .then((skillsLoaded) => {
       console.log('Got folowwing data from storage:');
       console.log(skillsLoaded);
+      if (skillsLoaded.skills === undefined)
+         return;
       tempSkillsArray.concat(skillsLoaded.skills);
-      /*
+      
       //This should display previously saved skills on current page, but not working at the moment 
-      for (var i = 0; i < tempSkillsArray.length; i++){
-         console.log('skillsArray[i].uri: ' + tempSkillsArray[i].uri + ', currentURL:' + currentURL);
-         if (tempSkillsArray[i].uri == currentURL)
-            addSkillToPopup(tempSkillsArray[i].skill);
+      for (var i = 0; i < skillsLoaded.skills.length; i++){
+         console.log('skillsArray[i].uri: ' + skillsLoaded.skills[i].uri + ', currentURL:' + currentURL);
+         if (skillsLoaded.skills[i].uri == currentURL)
+            addSkillToPopup(skillsLoaded.skills[i].skill);
       }
-      */
-   }).catch(() => {
-      console.log('No saved array found');
+      
+   }).catch((e) => {
+      console.log('No saved array found' + e);
       tempSkillsArray = new Array();
    });
 }
