@@ -137,7 +137,9 @@ function loadExistingSkills(tabs){
       console.log(skillsLoaded);
       if (skillsLoaded.skills === undefined)
          return;
-      tempSkillsArray.concat(skillsLoaded.skills);
+      tempSkillsArray = tempSkillsArray.concat(skillsLoaded.skills);
+      console.log('tempSkillsArray after skillsLoaded was added to it:  ');
+      console.log(tempSkillsArray);
       
       //This should display previously saved skills on current page, but not working at the moment 
       for (var i = 0; i < skillsLoaded.skills.length; i++){
