@@ -1,0 +1,6 @@
+
+
+1.0.13
+- Added trim to skills
+- Renamed some commands
+- Code cleanup.
