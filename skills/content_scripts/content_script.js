@@ -18,23 +18,34 @@
         browser.runtime.onMessage.addListener((message) => {
             if (message.command === "getSkill") {
                 //Add-skill button pressed
-                console.log('Button pressed');
+                console.log('"getSkill" message recieved');
                 let exactText = window.getSelection().toString();
                 let skill = {
                     skillName: exactText,
                     uri: document.documentURI,
                     date: Date()
                 }
+                return Promise.resolve({ skill });
+            }
+            else if (message.command === "tempSaveSkill"){
+                //Add skills button pressed, skill should be added to temp array
+                console.log('"tempSaveSkill" message recieved');
+                let exactText = window.getSelection().toString();
+                let skill = {
+                    skillName: message.skillName,
+                    uri: message.uri,
+                    date: message.date
+                }
                 currentPageSkills.skillsArray.push(skill);
                 currentPageSkills.isSaved = false;
-                return Promise.resolve({ skill });
+                return Promise.resolve({ skill }); 
             }
             else if (message.command === "buttonSave") {
                 //TODO Check if this still needed
                 //"Save" button pressed 
-                console.log('Save button pressed');
-                console.log('Saving: ');
-                console.log(currentPageSkills.skillsArray);
+                console.log('"buttonSave" message recieved');
+                console.log('currentPageSkills now is:');
+                console.log(currentPageSkills);
                 currentPageSkills.isSaved = true;
             }
             else if (message.command === "getCurrentSkills") {
