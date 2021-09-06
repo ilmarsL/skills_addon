@@ -1,6 +1,8 @@
-var tempSkillsArray = new Array();
+var tempSkillsArray = new Array(); //array conatining all saved skills, copy of what i stored in local storage.
 var isSaved = true;
 var highlightedSkill = new Object();
+var currentJobTitle = '';
+var currentURL = '';
 
 /**
  *  Is executed every time after popup is opened. 
@@ -25,6 +27,7 @@ function myfunc() {
             document.getElementById('skills-text').value = response.skill.skillName.trim();
             highlightedSkill.uri = response.skill.uri;
             highlightedSkill.date = response.skill.date;
+            currentURL = response.skill.uri;
         });       
     }
 
@@ -41,15 +44,17 @@ function myfunc() {
                 command: "tempSaveSkill",
                 skillName: document.getElementById('skills-text').value.trim(),
                 uri: highlightedSkill.uri,
-                date: highlightedSkill.date
+                date: highlightedSkill.date,
+                jobTitle: document.getElementById('job-title').value.trim()
             }).then(response => {
-                addSkillToPopup(response.skill.skillName)
+                addSkillToPopup(response.skill.skillName, response.skill.jobTitle);
                 isSaved = false;
                 updateSaveStatus();
                 let newStoredSkill = {
                     'skill': document.getElementById('skills-text').value.trim(),
                     'uri': highlightedSkill.uri,
-                    'date': highlightedSkill.date
+                    'date': highlightedSkill.date,
+                    'jobTitle': document.getElementById('job-title').value.trim()
                 }
                 tempSkillsArray.push(newStoredSkill);    
             });
@@ -57,7 +62,15 @@ function myfunc() {
     }
 
     function buttonSavePress(tabs) {
-        //TODO emtpy array got sent to localstorage
+        //If there are skills that were added before job titile, set their job title
+        for (var i = 0; i < tempSkillsArray.length; i++){
+            console.log('Save button pressed, currentURL is: ' + currentURL);
+            console.log('tempSkillsArray[i].uri is: ' + tempSkillsArray[i].uri);
+            if(tempSkillsArray[i].uri === currentURL){
+                console.log('Setting jobTtitle to: ' + currentJobTitle);
+                tempSkillsArray[i].jobTitle = currentJobTitle;
+            }
+        }
         //overwrites the whole array
         console.log('Save button pressed, tempSkillsArray :');
         console.log(tempSkillsArray);
@@ -67,21 +80,6 @@ function myfunc() {
                     .then(saveSuccess)
                     .catch(reportError);
             });
-    }
-
-    //Add handling for cusotm skils button
-    function addCustomSkill(tabs) {
-        let customSkill = document.getElementById('skills-text').value;
-        currentURL = tabs[0].url;
-        addSkillToPopup(customSkill);
-        isSaved = false;
-        updateSaveStatus();
-        let newStoredSkill = {
-            'skill': customSkill.trim(),
-            'uri': tabs[0].url,
-            'date': Date()
-        }
-        tempSkillsArray.push(newStoredSkill);
     }
 
     function saveSuccess(tabs) {
@@ -120,11 +118,22 @@ function myfunc() {
             };
             let creating = browser.tabs.create(createData);
         }
-        else if (e.target.id === 'add-custom-skill') {
-            browser.tabs.query({ active: true, currentWindow: true })
-                .then(addCustomSkill)
-                .catch(reportError);
-        }
+    });
+
+    //change event for job title
+    jobTtitleInput = document.getElementById('job-title');
+    jobTtitleInput.addEventListener("change", (e) => {
+        currentJobTitle = document.getElementById('job-title').value;
+        isSaved = false;
+        updateSaveStatus();
+        //save entered value in content script
+        browser.tabs.query({ active: true, currentWindow: true })
+        .then((tabs) => {
+            browser.tabs.sendMessage(tabs[0].id, {
+                command: 'saveJobTitle',
+                jobTitle: document.getElementById('job-title').value
+            });
+        });
     });
 }
 /**
@@ -137,23 +146,25 @@ function reportExecuteScriptError(error) {
 }
 
 /**
-     * Is executed every time popup is opened and content script runs.
-     * Update skills visible on popup using skills in contentscript.
-     * Also sets isSaved state.
-     */
- async function getSkillsFromContentScript(tabs){
+ * Is executed every time popup is opened and content script runs.
+ * Update skills visible on popup using skills in contentscript.
+ * Also sets isSaved state.
+ */
+async function getSkillsFromContentScript(tabs){
     console.log('getSkillsFromContentScript() started');
     try {
         await browser.tabs.sendMessage(tabs[0].id, {
             command: "getCurrentSkills"
         }).then(response => {
             for (var i = 0; i < response.currentPageSkills.skillsArray.length; i++) {
-                addSkillToPopup(response.currentPageSkills.skillsArray[i].skillName);
+                currentJobTitle = response.currentPageSkills.skillsArray[i].jobTitle;
+                addSkillToPopup(response.currentPageSkills.skillsArray[i].skillName, response.currentPageSkills.jobTitle);
                 //Add to tempSkillsArray but not localstorage, it gets saved to storage on "Save" button press;
                 let newStoredSkill = {
                     'skill': response.currentPageSkills.skillsArray[i].skillName,
                     'uri': response.currentPageSkills.skillsArray[i].uri,
-                    'date': response.currentPageSkills.skillsArray[i].date
+                    'date': response.currentPageSkills.skillsArray[i].date,
+                    'jobTitle': response.currentPageSkills.skillsArray[i].jobTitle
                 }
                 console.log('Adding skill to temp array: ');
                 console.log(newStoredSkill);
@@ -196,12 +207,13 @@ async function loadSkillsFromStorage(tabs) {
                 if (skillsLoaded.skills[i].uri == currentURL){
                     //found skill with matching url, add to popup and to conent scripts temparray
                     console.log('URL match, adding skill to popup and sending to content script');
-                    addSkillToPopup(skillsLoaded.skills[i].skill);
+                    addSkillToPopup(skillsLoaded.skills[i].skill, skillsLoaded.skills[i].jobTitle);
                     browser.tabs.sendMessage(tabs[0].id, {
                         command: "tempSaveSkill",
                         skillName: skillsLoaded.skills[i].skill,
                         uri: skillsLoaded.skills[i].uri,
-                        date: skillsLoaded.skills[i].date
+                        date: skillsLoaded.skills[i].date,
+                        jobTitle: skillsLoaded.skills[i].jobTitle
                     }).then();
                 }
             }
@@ -213,15 +225,20 @@ async function loadSkillsFromStorage(tabs) {
 }
 
 /**
- * Display skill on popup skills list
+ * Display skills and jobTtitle on popup skills list
  * @param {string} skill 
  */
-function addSkillToPopup(skill) {
+function addSkillToPopup(skill, jobTitle) {
     console.log('addSkillToPopup() called');
+    console.log('jobTitle: ' + jobTitle);
     let curSkillContainer = document.getElementById('current-page-skills');
     let newSkill = document.createElement('li');
     newSkill.innerText = skill;
     curSkillContainer.append(newSkill);
+
+    //set job title
+    document.getElementById('job-title').value = "";
+    document.getElementById('job-title').value = jobTitle; 
 }
 
 
@@ -229,7 +246,7 @@ function addSkillToPopup(skill) {
 /**
  * Gets highlighted skill from content script and insert it into the input field
  */
- function getHighlightedSkill(tabs){
+function getHighlightedSkill(tabs){
     try {
         browser.tabs.sendMessage(tabs[0].id, {
             command: "getCurrentSkills"

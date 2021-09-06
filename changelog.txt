@@ -1,3 +1,9 @@
+1.0.15
+- Added 'data not saved' prompt when closing page.
+- Fixed spacing
+- Removed add custom skill button and handler
+- Added 'Job title' field
+
 1.0.14
 - Can now manually add skills using input field
 
