@@ -1,3 +1,8 @@
+1.0.17
+- Added edititng skills from stats page.
+- Opening stats page with no data in storage now shows message instead of throwing error
+- Added some styling with bootstrap.
+
 1.0.15
 - Added 'data not saved' prompt when closing page.
 - Fixed spacing

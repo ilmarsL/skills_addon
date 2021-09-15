@@ -17,7 +17,7 @@
         window.hasRun = true;
         console.log('My content script from windows, built using webext');
         var currentPageSkills = {}
-        currentPageSkills.skillsArray = [];
+        currentPageSkills.skillsArray = []; //skills for current page
         currentPageSkills.isSaved = true;
         currentPageSkills.jobTitle = '';
 
@@ -56,14 +56,15 @@
             else if (message.command === "buttonSave") {
                 //don't show warning when closing page
                 removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
+                currentPageSkills.isSaved = true;
                 //"Save" button pressed 
                 console.log('"buttonSave" message recieved');
                 console.log('currentPageSkills now is:');
                 console.log(currentPageSkills);
-                currentPageSkills.isSaved = true;
+                
             }
             else if (message.command === "getCurrentSkills") {
-                console.log('Returning current skills to popup: ');
+                console.log('getCurrentSkills message received: ');
                 console.log(currentPageSkills);
                 return Promise.resolve({ currentPageSkills });
             }

@@ -2,35 +2,99 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="stats.css" type="text/css"/>
+        <link rel="stylesheet" href="../includes/bootstrap-5.1.1-dist/css/bootstrap.css"/>
+        <script src="../includes/jquery-3.6.0.js" defer></script>
+        <script src="../includes/bootstrap-5.1.1-dist/js/bootstrap.bundle.js" defer></script>
+        <script src="stats.js" defer></script>
     </head>
     <body>
-        This is page.
-        <input type="button" value="Export json" id="export-button">
-        <input type="file" value="Import json" id="import-button">
-        <h3>Stats:</h3>
-        <table>
-            <thead>
-                <tr><th>Skill</th><th>Count</th></tr>
-            </thead>
-            <tbody id="sorted-skills-container">
-            </tbody>
-        </table>
-        
-        <h3>All skills:</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Skill</th>
-                    <th>url</th>
-                    <th>Job title</th>
-                    <th>date</th>
-                    <th>delete</th>
-                </tr>
-            </thead>
-            <tbody id="all-skills-table">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm">
+                    This is stats page.
+                    <input type="button" value="Export json" id="export-button">
+                    <input type="file" value="Import json" id="import-button">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <h3>Stats:</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Skill</th><th>Count</th></tr>
+                        </thead>
+                        <tbody id="sorted-skills-container">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <h3>All skills:</h3>
+                    <table id="all-skills">
+                        <thead>
+                            <tr>
+                                <th>Skill</th>
+                                <th>url</th>
+                                <th>Job title</th>
+                                <th>date</th>
+                                <th>delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-skills-tbody">
 
-            </tbody>
-        </table>
-        <script src="stats.js"></script>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" tabindex="-1" role="dialog" id="exampleModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-3">
+                                    <label for="skillNameEdit">Name: </label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="skillNameEdit"/> 
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3">
+                                    <label for="skillURLEdit">URL: </label>
+                                </div>
+                                <div class="col-9">
+                                    <textarea type="text" id="skillURLEdit"></textarea>  
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3">
+                                    <label for="skillJTitleEdit">Job title: </label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" id="skillJTitleEdit"/> 
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3">
+                                    <label for="skillDateEdit">Date: </label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="date" id="skillDateEdit"/>  
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="saveButton" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="closeButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>    
 </html>

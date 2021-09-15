@@ -1,0 +1,11 @@
+#all-skills-tbody td {
+    border: 1px black solid;
+}
+
+#all-skills {
+    border-spacing: 0;    
+}
+
+body {
+    padding: 2em;
+}
