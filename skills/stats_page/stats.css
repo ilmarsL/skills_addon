@@ -9,3 +9,26 @@
 body {
     padding: 2em;
 }
+
+#cy {
+    width: 300px;
+    height: 300px;
+    display: block;
+    background-color: blue;
+  }
+
+.selected-skill{
+    font-weight: bold;
+}
+
+.skill-name{
+    cursor: pointer;
+}
+
+.skill-name:hover{
+    text-decoration: underline;
+}
+
+.hidden{
+    display: none;
+}

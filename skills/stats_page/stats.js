@@ -116,14 +116,14 @@ function showAllEntries(skillsArray){
 function countSkills(skillsArray){
     console.log('Counting skills');
     //count duplicates
-    countedSkills = [];
+    let countedSkills = []; //array of objects {skillName, skillCount}
     
     for (var i = 0; i < skillsArray.length; i++){
-        //check if element alreadu exists  
+        //check if element already in countedSkills  
         const found = countedSkills.findIndex(element => element.skillName.toLowerCase() == skillsArray[i].skillName.toLowerCase());
-        console.log('found: ' + found);
+        //console.log('found: ' + found);
         if (found != -1){
-            console.log('increasing index; ');
+            //console.log('increasing index; ');
             countedSkills[found].skillCount += 1;
         }
         else{
@@ -144,6 +144,8 @@ function countSkills(skillsArray){
     for (var i = 0; i < countedSkills.length; i++){
         let newRow = document.createElement('tr');
         let newSkillName = document.createElement('td');
+        newSkillName.className += 'skill-name';
+        newSkillName.onclick = showRelatedSkills;
         let newCount = document.createElement('td');
         newSkillName.innerText = countedSkills[i].skillName;
         newCount.innerText = countedSkills[i].skillCount;
@@ -151,7 +153,6 @@ function countSkills(skillsArray){
         newRow.append(newCount);
         sortedSkillContainer.append(newRow);    
     }
-
 }
 
 function editSkill(e){
@@ -194,4 +195,132 @@ function saveEditedSkill(){
                 console.error(error);
                 console.log('Error saving to local storage!');
             });
+}
+
+function showRelatedSkills(e){
+    //remove selection from other elements
+    console.log(e);
+    e.target.parentNode.parentNode.childNodes.forEach(elem =>{
+        if(elem.childNodes[0].classList.contains('selected-skill'))
+            elem.childNodes[0].classList.remove('selected-skill');
+    })
+    e.target.classList.add('selected-skill');
+    let selectedSkill = e.target.innerText; //skill user clicked on    
+
+    //get all unique skills with this name
+    let skillWithURL = loadedSkillsArray.filter(elem=>{
+        return elem.skillName.toLowerCase() ===  selectedSkill.toLowerCase()
+    });
+
+    let skillURLS = []; //array of skill url strings
+    let jobTitles = []; //array of job title strings
+    for (let i = 0; i < skillWithURL.length; i++){
+        skillURLS.push(skillWithURL[i].uri);
+        jobTitles.push(skillWithURL[i].jobTitle)
+    }
+
+    //get all related (skills with this job url)
+    let relatedSkills = loadedSkillsArray.filter(elem=>{
+        if (elem.skillName.toLowerCase() !== selectedSkill.toLowerCase()) //don't show the skill user clicked on
+            return skillURLS.includes(elem.uri);
+    });
+
+    //count related skills and remove duplicates.
+    let countedSkills = []; //array of objects {skillName, skillCount}    
+    for (let j = 0; j < relatedSkills.length; j++){
+        //check if element already in countedSkills  
+        const found = countedSkills.findIndex(element => element.skillName.toLowerCase() == relatedSkills[j].skillName.toLowerCase());
+        if (found != -1){
+            //if it is already found, increase it's count
+            countedSkills[found].skillCount += 1;
+        }
+        else{
+            newSkill = {
+                'skillName': relatedSkills[j].skillName,
+                'skillCount': 1
+            }
+            countedSkills.push(newSkill);
+        }
+    }
+
+    //sort countedSkills in descending order
+    countedSkills.sort(function(a, b){
+        return b.skillCount - a.skillCount;
+    });
+
+    //Display results
+    document.getElementById('related-skill-heading').childNodes[1].innerText = selectedSkill;
+    let sortedSkillContainer = document.getElementById('related-skills-container');
+    sortedSkillContainer.innerHTML = '';
+    for (let k = 0; k < countedSkills.length; k++){
+        let newRow = document.createElement('tr');
+        let newSkillName = document.createElement('td');
+        newSkillName.className += 'skill-name';
+        let newCount = document.createElement('td');
+        newSkillName.innerText = countedSkills[k].skillName;
+        newCount.innerText = countedSkills[k].skillCount;
+        newRow.append(newSkillName);
+        newRow.append(newCount);
+        sortedSkillContainer.append(newRow);    
+    }
+    //show the table
+    const relatedTable = document.getElementById('related-skill-counts');
+    if(relatedTable.classList.contains('hidden')){
+        relatedTable.classList.remove('hidden');
+    }
+
+    console.log('jobTitles');
+    console.log(jobTitles);
+
+    //count JobTitles
+    let countedJobTitles = []; //array of objects {skillName, skillCount}    
+    for (let j = 0; j < jobTitles.length; j++){
+        //check for undefined 
+        if (jobTitles[j] === undefined){
+            console.log('found undefined');
+            jobTitles[j] = '';
+        }
+        //check if element already in countedSkills  
+        const found = countedJobTitles.findIndex(element => element.skillName.toLowerCase() == jobTitles[j].toLowerCase());
+        if (found != -1){
+            //if it is already found, increase it's count
+            countedJobTitles[found].count += 1;
+        }
+        else{
+            newJobTitle = {
+                'skillName': jobTitles[j],
+                'count': 1
+            }
+            countedJobTitles.push(newJobTitle);
+        }
+    }
+
+    //sort countedSkills in descending order
+    countedJobTitles.sort(function(a, b){
+        return b.count - a.count;
+    });
+    console.log('countedJobTitles');
+    console.log(countedJobTitles);
+
+    //display job titles
+    document.getElementById('related-jobs-heading').childNodes[1].innerText = selectedSkill;
+    let sortedJobsContainer = document.getElementById('related-jobs-container');
+    sortedJobsContainer.innerHTML = '';
+    for (let k = 0; k < countedJobTitles.length; k++){
+        let newRow = document.createElement('tr');
+        let newSkillName = document.createElement('td');
+        newSkillName.className += 'skill-name';
+        let newCount = document.createElement('td');
+        newSkillName.innerText = countedJobTitles[k].skillName;
+        newCount.innerText = countedJobTitles[k].count;
+        newRow.append(newSkillName);
+        newRow.append(newCount);
+        sortedJobsContainer.append(newRow);    
+    }
+    //show the table
+    const relatedJobsTable = document.getElementById('related-jobs-counts');
+    if(relatedJobsTable.classList.contains('hidden')){
+        relatedJobsTable.classList.remove('hidden');
+    }
+
 }

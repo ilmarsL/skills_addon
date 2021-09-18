@@ -7,26 +7,56 @@
         <script src="../includes/jquery-3.6.0.js" defer></script>
         <script src="../includes/bootstrap-5.1.1-dist/js/bootstrap.bundle.js" defer></script>
         <script src="stats.js" defer></script>
+        <script src="../includes/cytoscape.umd.js"></script>
     </head>
     <body>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm">
-                    This is stats page.
+                <div class="col-4-sm">                
+                    <label for="export-button">Export data: </label>
                     <input type="button" value="Export json" id="export-button">
+                </div>
+                <div class="col-4-sm">
+                    <label for="import-button">Import data from file: </label>
                     <input type="file" value="Import json" id="import-button">
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm">
-                    <h3>Stats:</h3>
-                    <table>
+                    <h3>All skills:</h3>
+                    <table id="skill-counts" class="table">
                         <thead>
                             <tr><th>Skill</th><th>Count</th></tr>
                         </thead>
                         <tbody id="sorted-skills-container">
                         </tbody>
                     </table>
+                </div>
+                <div class="col-sm">
+                    <h3 id="related-skill-heading" >Skills related to <span style="font-weight: bold;"></span> :</h3>
+                    <table id="related-skill-counts" class="hidden table">
+                        <thead>
+                            <tr><th>Skill</th><th>Count</th></tr>
+                        </thead>
+                        <tbody id="related-skills-container">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm">
+                    <h3 id="related-jobs-heading" > Jobs with <span style="font-weight: bold;"></span> :</h3>
+                    <table id="related-jobs-counts" class="hidden table">
+                        <thead>
+                            <tr><th>Job title</th><th>Count</th></tr>
+                        </thead>
+                        <tbody id="related-jobs-container">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <div id="cy">
+                    </div>
                 </div>
             </div>
             <div class="row">

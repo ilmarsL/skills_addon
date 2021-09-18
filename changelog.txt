@@ -1,3 +1,8 @@
+1.0.18
+- Added related skills table;
+- Added related jobs titles table;
+- Changed styling of stats page
+
 1.0.17
 - Added edititng skills from stats page.
 - Opening stats page with no data in storage now shows message instead of throwing error
