@@ -29,6 +29,10 @@ body {
     text-decoration: underline;
 }
 
+.skrollable-row{
+    max-height: 40em;
+}
+
 .hidden{
     display: none;
 }

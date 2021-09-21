@@ -1,3 +1,8 @@
+1.0.19
+- Added delete skill button.
+- Added demo skills.
+- Updated description
+
 1.0.18
 - Added related skills table;
 - Added related jobs titles table;

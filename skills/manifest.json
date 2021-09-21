@@ -1,14 +1,14 @@
 {
     "manifest_version": 2,
     "name": "Skills",
-    "version": "1.0.18",
+    "version": "1.0.19",
     "content_scripts":[
       {
         "matches": ["*://*/*"],
         "js": ["content_scripts/content_script.js"]
       }
     ],
-    "description": "Collects skills from viewed pages",
+    "description": "This extension allows you to track what skills/technologies are popular in the job market. It also allows you visualise relationships between theese skills/technologies and job titles",
     "icons": {
         "48": "icons/icon48.png"
       },

@@ -2,40 +2,67 @@ var loadedSkillsArray;
 
 $( document ).ready(function(){
     //Initialize on open
-    browser.storage.local.get('skills')
+    browser.storage.local.get(['skills', 'useDemo'])
         .then((skillsData) => {
-            if(Object.keys(skillsData).length === 0){
+            if(!skillsData.hasOwnProperty('skills')){
                 //No 'skills' key in storage
                 console.log('No saved data found in local storage.');
-                return;
+                //check if use-demo is set
+                if(!skillsData.hasOwnProperty('useDemo') || skillsData.useDemo){
+                    if (!window.hasOwnProperty('demoSkills')){
+                        console.log('Demo skills file not found!');
+                        return;
+                    }
+                    console.log('Using demo data')
+                    //use-demo key not set, probably first run, using demo-data.
+                    loadedSkillsArray = JSON.parse(JSON.stringify(demoSkills.skills));//deep copy
+                    skillsData.skills = loadedSkillsArray
+                    showAllEntries(loadedSkillsArray);
+                    countSkills(loadedSkillsArray);
+                    //check the demo box
+                    document.getElementById('demo-data').checked = true;
+                }
+                else{
+                    console.log('Not using demo data');
+                    return;
+                }                         
             }
-            showAllEntries(skillsData.skills);
-            countSkills(skillsData.skills);
-            loadedSkillsArray = skillsData.skills;
+            else if (skillsData.hasOwnProperty('skills')){
+                //skills already exist in local storage
+                //just show everything
+                showAllEntries(skillsData.skills);
+                countSkills(skillsData.skills);
+                loadedSkillsArray = skillsData.skills;
+            } 
+        })
+        .catch((e) => {
+            console.log("Initialization error");
+            console.log(e);
+        });
 
-            //Export skills
-            document.getElementById('export-button').addEventListener('click',() => {
-                console.log('Exporting...');
-                const blob = new Blob([JSON.stringify(skillsData)], { type: "text/json" });
-                const link = document.createElement("a");
+    //Export file
+    document.getElementById('export-button').addEventListener('click',() => {
+        if(loadedSkillsArray === undefined){
+            console.error('No data to export');
+            return;
+        }
+        console.log('Exporting...');
+        const blob = new Blob([JSON.stringify(loadedSkillsArray)], { type: "text/json" });
+        const link = document.createElement("a");
 
-                link.download = 'mySkils.json';
-                link.href = window.URL.createObjectURL(blob);
-                link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+        link.download = 'mySkils.json';
+        link.href = window.URL.createObjectURL(blob);
+        link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
 
-                const evt = new MouseEvent("click", {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true,
-                });
+        const evt = new MouseEvent("click", {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+        });
 
-                link.dispatchEvent(evt);
-                link.remove()
-            });    
-    }).catch((e) => {
-        console.log("Initialization error");
-        console.log(e);
-    });
+        link.dispatchEvent(evt);
+        link.remove()
+    }); 
 
     //Upload file
     document.getElementById('import-button').addEventListener('change', handleFiles, false);
@@ -43,7 +70,7 @@ $( document ).ready(function(){
             console.log('Importing...');
             const filelist = this.files;
             const selectedFile = filelist[0];
-            selectedFile.text().then(text => {
+            selectedFile.text().then((text) => {
                 console.log('contents of the file:');
                 console.log(text);
                 try{
@@ -62,6 +89,9 @@ $( document ).ready(function(){
                     countSkills(skillsObj.skills);
                     console.log('Skills set');
                 });         
+            })
+            .catch(()=>{
+                console.log('Error processing file;');
             });
         }
     
@@ -71,6 +101,38 @@ $( document ).ready(function(){
         $('#exampleModal').modal('hide');
     });
     $('#saveButton').on('click',saveEditedSkill);
+
+    //use demo skills checkbox
+    document.getElementById('demo-data').addEventListener('change', (e)=>{        
+        console.log('Checkbox changed')
+        browser.storage.local.set({'useDemo' : e.target.checked})
+                .then(()=>{
+                    if(e.target.checked){
+                        //demo data should be used
+                        console.log('Adding demo items...');
+                        let loadedDemoSkills = JSON.parse(JSON.stringify(demoSkills.skills));//deep copy
+                        loadedSkillsArray = loadedSkillsArray.concat(loadedDemoSkills);
+                        showAllEntries(loadedSkillsArray);
+                        countSkills(loadedSkillsArray);
+                    }
+                    else if(!e.target.checked){
+                        //remove all demo data
+                        console.log('Removing demo items...');
+                        for (let i = 0; i < loadedSkillsArray.length; i++){
+                            if(loadedSkillsArray[i].uri.substr(0,4) === 'demo'){
+                                loadedSkillsArray.splice(i,1);
+                                i--;
+                            }
+                        }
+                        showAllEntries(loadedSkillsArray);
+                        countSkills(loadedSkillsArray);
+                    }
+                })
+                .catch((error)=>{
+                    console.log(error);
+                    console.log('Failed to write to localstorage!');
+                });  
+    });
 });//end of ready()
 
 /**
@@ -101,11 +163,21 @@ function showAllEntries(skillsArray){
         newRow.append(newDate);
         curSkillContainer.append(newRow);
 
+        let editButtonCell = document.createElement('td');
         let editButton = document.createElement('button');
         editButton.innerText = 'Edit';
         editButton.onclick = editSkill;
         editButton.setAttribute('data-arrayIndex', i);
-        newRow.append(editButton);
+        editButtonCell.append(editButton);
+        newRow.append(editButtonCell);
+
+        let deleteButtonCell = document.createElement('td');
+        let deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.onclick = deleteSkill;
+        deleteButton.setAttribute('data-arrayIndex', i);
+        deleteButtonCell.append(deleteButton)
+        newRow.append(deleteButtonCell);
     }
 }
 
@@ -159,12 +231,18 @@ function editSkill(e){
     console.log('Editing skill');
     console.log(e);
     //get row values
-    let skillName = e.target.parentElement.childNodes[0].innerText;
-    let skillURL = e.target.parentElement.childNodes[1].firstChild.href;
-    let jobTitle = e.target.parentElement.childNodes[2].innerText;
-    let skillDate = e.target.parentElement.childNodes[3].innerText;
+    let skillName = e.target.parentElement.parentElement.childNodes[0].innerText;
+    let skillURL = e.target.parentElement.parentElement.childNodes[1].firstChild.href;
+    let jobTitle = e.target.parentElement.parentElement.childNodes[2].innerText;
+    let skillDate = e.target.parentElement.parentElement.childNodes[3].innerText;
     $('#skillNameEdit').val(skillName);
-    $('#skillURLEdit').val(skillURL);
+    if(skillURL.indexOf('demo') !== -1){
+        //fix for demo skills 
+        $('#skillURLEdit').val(skillURL.substr(skillURL.indexOf('demo')));
+    }
+    else{
+        $('#skillURLEdit').val(skillURL);
+    }    
     $('#skillJTitleEdit').val(jobTitle);
     console.log('Setting date to' + skillDate);
     document.getElementById('skillDateEdit').valueAsDate = new Date(skillDate);
@@ -173,6 +251,25 @@ function editSkill(e){
     //set id for later use with save button
     $('#saveButton').attr('data-arrayIndex', e.target.getAttribute('data-arrayIndex'));
     $('#exampleModal').modal('show');
+}
+
+/**
+ * Handler for delete button
+ * @param {*} e 
+ */
+function deleteSkill(e){
+    let aIndex = e.target.getAttribute('data-arrayIndex');
+    console.log('Deleteing skill ' + aIndex);
+    loadedSkillsArray.splice(aIndex,1);
+    browser.storage.local.set({ 'skills': loadedSkillsArray })
+            .then(() => {
+                showAllEntries(loadedSkillsArray);
+                countSkills(loadedSkillsArray);              
+            })
+            .catch((error)=>{
+                console.error(error);
+                console.log('Error saving to local storage!');
+            });
 }
 
 //Called when save button on modal is pressed
@@ -255,7 +352,6 @@ function showRelatedSkills(e){
     for (let k = 0; k < countedSkills.length; k++){
         let newRow = document.createElement('tr');
         let newSkillName = document.createElement('td');
-        newSkillName.className += 'skill-name';
         let newCount = document.createElement('td');
         newSkillName.innerText = countedSkills[k].skillName;
         newCount.innerText = countedSkills[k].skillCount;
@@ -322,5 +418,18 @@ function showRelatedSkills(e){
     if(relatedJobsTable.classList.contains('hidden')){
         relatedJobsTable.classList.remove('hidden');
     }
+}
 
+function makeDemo(){
+    let jobsFound = 0;
+    let prevUri = '';
+    for(let i = 0; i < loadedSkillsArray.length; i++){
+        if ((loadedSkillsArray[i].uri !== prevUri) && (prevUri !== '')){
+            jobsFound++;
+        }
+        prevUri = loadedSkillsArray[i].uri;
+        loadedSkillsArray[i].uri = 'demo' + jobsFound;
+    }
+    showAllEntries(loadedSkillsArray);
+    countSkills(loadedSkillsArray);
 }
