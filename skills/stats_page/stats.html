@@ -13,7 +13,7 @@
     <body>
         <div class="container-fluid">
             
-            <div class="row overflow-auto skrollable-row">
+            <div class="row overflow-hidden" id="skill-count-row">
                 <div class="col-sm">
                     <h3>Top skills:</h3>
                     <table id="skill-counts" class="table">
@@ -35,7 +35,7 @@
                     </table>
                 </div>
                 <div class="col-sm">
-                    <h3 id="related-jobs-heading" > Jobs with <span style="font-weight: bold;"></span> :</h3>
+                    <h3 id="related-jobs-heading" > Job titles with <span style="font-weight: bold;"></span> :</h3>
                     <table id="related-jobs-counts" class="hidden table">
                         <thead>
                             <tr><th>Job title</th><th>Count</th></tr>
@@ -43,6 +43,11 @@
                         <tbody id="related-jobs-container">
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="row justify-content-md-center" id="show-all-row">
+                <div class="col-md-auto">
+                    <a href="#" id="show-all">Show all</a>
                 </div>
             </div>
             <div class="row">

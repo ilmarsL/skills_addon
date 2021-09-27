@@ -1,3 +1,14 @@
+1.1.2
+ - Fixed one more demo loading error
+
+1.1.1
+ - Fixed demo not loading
+ - Fixed skill without name crashing graph
+
+1.1.0
+- Added stats graph.
+- Started more accurate version numbering
+
 1.0.19
 - Added delete skill button.
 - Added demo skills.

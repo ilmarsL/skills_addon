@@ -1,6 +1,35 @@
 var loadedSkillsArray;
 
+//graph
+var cy = cytoscape({
+    container: document.getElementById('cy'), // container to render in  
+      style: [ // the stylesheet for the graph
+        {
+          selector: 'node',
+          style: {
+            'background-color': '#666',
+            'label': 'data(id)'
+          }
+        },
+    
+        {
+          selector: 'edge',
+          style: {
+            'width': 3,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier'
+          }
+        }
+      ],    
+      layout: {
+        name: 'random'
+      }
+});
+
 $( document ).ready(function(){
+    console.log('Start');
     //Initialize on open
     browser.storage.local.get(['skills', 'useDemo'])
         .then((skillsData) => {
@@ -9,6 +38,7 @@ $( document ).ready(function(){
                 console.log('No saved data found in local storage.');
                 //check if use-demo is set
                 if(!skillsData.hasOwnProperty('useDemo') || skillsData.useDemo){
+                    //useDemo not set or set to true, use demo
                     if (!window.hasOwnProperty('demoSkills')){
                         console.log('Demo skills file not found!');
                         return;
@@ -28,11 +58,36 @@ $( document ).ready(function(){
                 }                         
             }
             else if (skillsData.hasOwnProperty('skills')){
-                //skills already exist in local storage
-                //just show everything
-                showAllEntries(skillsData.skills);
-                countSkills(skillsData.skills);
-                loadedSkillsArray = skillsData.skills;
+                //skillsData exists in storage, check demo flag
+                if (!skillsData.hasOwnProperty('useDemo')){
+                    //no demo property, probably first run, use demo
+                    console.log('No demo!!!, adding demo data');
+                    let demoCheckBox = document.getElementById('demo-data');
+                    demoCheckBox.checked = true;
+                    browser.storage.local.set({'useDemo' : true})
+                    .then(()=>{
+                            //demo data should be used
+                            console.log('Adding demo items...');
+                            loadedSkillsArray = skillsData.skills;
+                            let loadedDemoSkills = JSON.parse(JSON.stringify(demoSkills.skills));//deep copy
+                            loadedSkillsArray = loadedSkillsArray.concat(loadedDemoSkills);
+                            showAllEntries(loadedSkillsArray);
+                            countSkills(loadedSkillsArray);
+                            //save data
+                            browser.storage.local.set({ 'skills': loadedSkillsArray }); //TODO re-write this to properly use promises
+                    })
+                    .catch((e)=>{
+                        console.log('Failed to set demo');
+                        console.log(e);
+                    });
+                }
+                else{
+                    //skills already exist in local storage
+                    //just show everything
+                    showAllEntries(skillsData.skills);
+                    countSkills(skillsData.skills);
+                    loadedSkillsArray = skillsData.skills;
+                }             
             } 
         })
         .catch((e) => {
@@ -101,6 +156,13 @@ $( document ).ready(function(){
         $('#exampleModal').modal('hide');
     });
     $('#saveButton').on('click',saveEditedSkill);
+
+    //show all link
+    document.getElementById('show-all').addEventListener('click', (e)=>{
+        console.log('Showing all skills');
+        document.getElementById('skill-count-row').style.maxHeight = '100%';
+        e.target.style.display = 'none';
+    });
 
     //use demo skills checkbox
     document.getElementById('demo-data').addEventListener('change', (e)=>{        
@@ -186,9 +248,11 @@ function showAllEntries(skillsArray){
  * @param {array from localstorage} skillsArray 
  */
 function countSkills(skillsArray){
+    cy.elements().remove();
     console.log('Counting skills');
     //count duplicates
     let countedSkills = []; //array of objects {skillName, skillCount}
+    let currentURL = ''
     
     for (var i = 0; i < skillsArray.length; i++){
         //check if element already in countedSkills  
@@ -204,8 +268,35 @@ function countSkills(skillsArray){
                 'skillCount': 1
             }
             countedSkills.push(newSkill);
-        }
+            console.log(cy);
+
+            //add to graph
+            if(skillsArray[i].skillName !== ''){
+                cy.add({
+                group: 'nodes',
+                data: {id: skillsArray[i].skillName.toLowerCase(),
+                    weight: 75}
+                });
+            }
+        }        
     }
+
+    //second loop for adding edges to graph
+    for (var i = 0; i < skillsArray.length; i++){
+        //draw arraows in graph
+        if ((skillsArray[i].uri == currentURL) && (i > 0)){
+            //make new arrow
+            if(skillsArray[i].skillName !== '' && skillsArray[i-1].skillName !== ''){
+                cy.add({ group: 'edges', data: { id:i, source: skillsArray[i].skillName.toLowerCase(), target: skillsArray[i-1].skillName.toLowerCase() }});
+            }
+        }
+        currentURL = skillsArray[i].uri;
+    }
+    var layout = cy.layout({
+        name: 'breadthfirst' //concentric, breadthfirst, cose
+      });
+  
+      layout.run(); 
     //sort countedSkills
     countedSkills.sort(function(a, b){
         return b.skillCount - a.skillCount;
