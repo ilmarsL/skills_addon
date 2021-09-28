@@ -1,32 +1,5 @@
 var loadedSkillsArray;
-
-//graph
-var cy = cytoscape({
-    container: document.getElementById('cy'), // container to render in  
-      style: [ // the stylesheet for the graph
-        {
-          selector: 'node',
-          style: {
-            'background-color': '#666',
-            'label': 'data(id)'
-          }
-        },
-    
-        {
-          selector: 'edge',
-          style: {
-            'width': 3,
-            'line-color': '#ccc',
-            'target-arrow-color': '#ccc',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier'
-          }
-        }
-      ],    
-      layout: {
-        name: 'random'
-      }
-});
+var cy;
 
 $( document ).ready(function(){
     console.log('Start');
@@ -51,6 +24,7 @@ $( document ).ready(function(){
                     countSkills(loadedSkillsArray);
                     //check the demo box
                     document.getElementById('demo-data').checked = true;
+                    showGraph();
                 }
                 else{
                     console.log('Not using demo data');
@@ -75,6 +49,7 @@ $( document ).ready(function(){
                             countSkills(loadedSkillsArray);
                             //save data
                             browser.storage.local.set({ 'skills': loadedSkillsArray }); //TODO re-write this to properly use promises
+                            showGraph();
                     })
                     .catch((e)=>{
                         console.log('Failed to set demo');
@@ -87,6 +62,7 @@ $( document ).ready(function(){
                     showAllEntries(skillsData.skills);
                     countSkills(skillsData.skills);
                     loadedSkillsArray = skillsData.skills;
+                    showGraph();
                 }             
             } 
         })
@@ -173,9 +149,15 @@ $( document ).ready(function(){
                         //demo data should be used
                         console.log('Adding demo items...');
                         let loadedDemoSkills = JSON.parse(JSON.stringify(demoSkills.skills));//deep copy
-                        loadedSkillsArray = loadedSkillsArray.concat(loadedDemoSkills);
+                        if (loadedSkillsArray === undefined){
+                            loadedSkillsArray = loadedDemoSkills
+                        }
+                        else{
+                            loadedSkillsArray = loadedSkillsArray.concat(loadedDemoSkills);
+                        }                        
                         showAllEntries(loadedSkillsArray);
                         countSkills(loadedSkillsArray);
+                        showGraph();
                     }
                     else if(!e.target.checked){
                         //remove all demo data
@@ -188,6 +170,7 @@ $( document ).ready(function(){
                         }
                         showAllEntries(loadedSkillsArray);
                         countSkills(loadedSkillsArray);
+                        showGraph();
                     }
                 })
                 .catch((error)=>{
@@ -248,7 +231,7 @@ function showAllEntries(skillsArray){
  * @param {array from localstorage} skillsArray 
  */
 function countSkills(skillsArray){
-    cy.elements().remove();
+    
     console.log('Counting skills');
     //count duplicates
     let countedSkills = []; //array of objects {skillName, skillCount}
@@ -268,35 +251,8 @@ function countSkills(skillsArray){
                 'skillCount': 1
             }
             countedSkills.push(newSkill);
-            console.log(cy);
-
-            //add to graph
-            if(skillsArray[i].skillName !== ''){
-                cy.add({
-                group: 'nodes',
-                data: {id: skillsArray[i].skillName.toLowerCase(),
-                    weight: 75}
-                });
-            }
         }        
     }
-
-    //second loop for adding edges to graph
-    for (var i = 0; i < skillsArray.length; i++){
-        //draw arraows in graph
-        if ((skillsArray[i].uri == currentURL) && (i > 0)){
-            //make new arrow
-            if(skillsArray[i].skillName !== '' && skillsArray[i-1].skillName !== ''){
-                cy.add({ group: 'edges', data: { id:i, source: skillsArray[i].skillName.toLowerCase(), target: skillsArray[i-1].skillName.toLowerCase() }});
-            }
-        }
-        currentURL = skillsArray[i].uri;
-    }
-    var layout = cy.layout({
-        name: 'breadthfirst' //concentric, breadthfirst, cose
-      });
-  
-      layout.run(); 
     //sort countedSkills
     countedSkills.sort(function(a, b){
         return b.skillCount - a.skillCount;
@@ -523,4 +479,94 @@ function makeDemo(){
     }
     showAllEntries(loadedSkillsArray);
     countSkills(loadedSkillsArray);
+    showGraph();
+}
+
+function showGraph(){
+    //cy.elements().remove();
+     //count duplicates
+     let countedSkills = []; //array of objects {skillName, skillCount}
+     let currentURL = ''
+        //graph
+    cy = cytoscape({
+        container: document.getElementById('cy'), // container to render in  
+        style: [ // the stylesheet for the graph
+            {
+            selector: 'node',
+            style: {
+                'background-color': '#666',
+                'label': 'data(id)'
+            }
+            },
+        
+            {
+            selector: 'edge',
+            style: {
+                'width': 3,
+                'line-color': '#ccc',
+                'target-arrow-color': '#ccc',
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
+            }
+            }
+        ],    
+        layout: {
+            name: 'random'
+        }
+    });
+    cy.minZoom(0.7);
+    cy.userZoomingEnabled(false);
+    
+    
+    
+    
+    //add nodes
+    for (var i = 0; i < loadedSkillsArray.length; i++){
+        //check if element already in countedSkills  
+        const found = countedSkills.findIndex(element => element.skillName.toLowerCase() == loadedSkillsArray[i].skillName.toLowerCase());
+        //console.log('found: ' + found);
+        if (found != -1){
+            //console.log('increasing index; ');
+            countedSkills[found].skillCount += 1;
+        }
+        else{
+            newSkill = {
+                'skillName': loadedSkillsArray[i].skillName,
+                'skillCount': 1
+            }
+            countedSkills.push(newSkill);
+
+            //add to graph            
+            if(loadedSkillsArray[i].skillName !== ''){
+                cy.add({
+                group: 'nodes',
+                data: {id: loadedSkillsArray[i].skillName.toLowerCase(),
+                    weight: 75}
+                });
+            }
+        }        
+    }
+
+    //second loop for adding edges to graph
+    for (var i = 0; i < loadedSkillsArray.length; i++){
+        //draw arraows in graph
+        if ((loadedSkillsArray[i].uri == currentURL) && (i > 0)){
+            //make new arrow
+            if(loadedSkillsArray[i].skillName !== '' && loadedSkillsArray[i-1].skillName !== ''){
+                cy.add({ group: 'edges', data: { id:i, source: loadedSkillsArray[i].skillName.toLowerCase(), target: loadedSkillsArray[i-1].skillName.toLowerCase() }});
+            }
+        }
+        currentURL = loadedSkillsArray[i].uri;
+    }
+    var layout = cy.layout({
+        name: 'breadthfirst' //concentric, breadthfirst, cose
+      });
+  
+      layout.run(); 
+
+    
+    //cy.maxZoom(2);
+    
+    //cy.zoom(10);
+
 }
