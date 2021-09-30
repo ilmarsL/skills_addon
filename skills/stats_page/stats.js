@@ -118,11 +118,11 @@ $( document ).ready(function(){
                     console.log(e);
                     return;
                 }
-                browser.storage.local.set({'skills' : skillsObj.skills})
+                browser.storage.local.set({'skills' : skillsObj})
                 .then(() => {
-                    loadedSkillsArray = skillsObj.skills;
-                    showAllEntries(skillsObj.skills);
-                    countSkills(skillsObj.skills);
+                    loadedSkillsArray = skillsObj;
+                    showAllEntries(skillsObj);
+                    countSkills(skillsObj);
                     console.log('Skills set');
                 });         
             })
