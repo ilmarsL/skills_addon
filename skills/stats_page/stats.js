@@ -25,6 +25,11 @@ $( document ).ready(function(){
                     //check the demo box
                     document.getElementById('demo-data').checked = true;
                     showGraph();
+                    browser.storage.local.set({'useDemo' : true})
+                    .catch((error)=>{
+                        console.log('Failed to set useDemo in localStorage');
+                        console.log(error);
+                    });
                 }
                 else{
                     console.log('Not using demo data');
@@ -145,6 +150,7 @@ $( document ).ready(function(){
         console.log('Checkbox changed')
         browser.storage.local.set({'useDemo' : e.target.checked})
                 .then(()=>{
+                    console.log('useDemo set to: ' + e.target.checked);
                     if(e.target.checked){
                         //demo data should be used
                         console.log('Adding demo items...');
@@ -158,6 +164,7 @@ $( document ).ready(function(){
                         showAllEntries(loadedSkillsArray);
                         countSkills(loadedSkillsArray);
                         showGraph();
+                        //store new demo state to local storage
                     }
                     else if(!e.target.checked){
                         //remove all demo data
