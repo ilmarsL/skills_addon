@@ -490,12 +490,11 @@ function makeDemo(){
 }
 
 function showGraph(){
-    //cy.elements().remove();
-     //count duplicates
-     let countedSkills = []; //array of objects {skillName, skillCount}
-     let currentURL = ''
-        //graph
-    cy = cytoscape({
+    //count duplicates
+    let countedSkills = []; //array of objects {skillName, skillCount}
+    let currentURL = ''
+    //graph
+    cy = window.cy = cytoscape({
         container: document.getElementById('cy'), // container to render in  
         style: [ // the stylesheet for the graph
             {
@@ -521,11 +520,6 @@ function showGraph(){
             name: 'random'
         }
     });
-    cy.minZoom(0.7);
-    cy.userZoomingEnabled(false);
-    
-    
-    
     
     //add nodes
     for (var i = 0; i < loadedSkillsArray.length; i++){
@@ -560,20 +554,21 @@ function showGraph(){
         if ((loadedSkillsArray[i].uri == currentURL) && (i > 0)){
             //make new arrow
             if(loadedSkillsArray[i].skillName !== '' && loadedSkillsArray[i-1].skillName !== ''){
-                cy.add({ group: 'edges', data: { id:i, source: loadedSkillsArray[i].skillName.toLowerCase(), target: loadedSkillsArray[i-1].skillName.toLowerCase() }});
+                cy.add({ group: 'edges', data: { id:i, source: loadedSkillsArray[i].skillName.toLowerCase(), target: loadedSkillsArray[i-1].skillName.toLowerCase()}});
             }
         }
         currentURL = loadedSkillsArray[i].uri;
     }
     var layout = cy.layout({
-        name: 'breadthfirst' //concentric, breadthfirst, cose
+        name: 'cose', //concentric, breadthfirst, cose, cose-bilkent
+        padding: 40,
+        nodeRepulsion: 1600000,
+        idealEdgeLength: 100,
+        edgeElasticity: 150,
       });
   
-      layout.run(); 
+    layout.run();    
 
-    
-    //cy.maxZoom(2);
-    
-    //cy.zoom(10);
-
+    //add panzoom widget
+    cy.panzoom({});
 }

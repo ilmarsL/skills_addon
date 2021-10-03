@@ -23,7 +23,11 @@ body {
     width: 100%;
     height: 1000px;
     display: block;
-  }
+}
+
+#cy-container {
+    border: 1px black solid;
+}
 
 .selected-skill{
     font-weight: bold;

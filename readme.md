@@ -1,4 +1,4 @@
-Small extension I wrote while learning javascript. It allows you to keep track of skills/technologies mentioned in job requirements. Saved data can later be used to visualize  relationships between those skills and potentially help to choose what to learn next.
+Small extension I started writing while learning javascript. It allows you to keep track of skills/technologies mentioned in job requirements. Saved data can later be used to visualize  relationships between those skills and potentially help to choose what to learn next.
 
 ## Installation
 Signed extension can be found in signed folder. Currently works only on Firefox.

@@ -4,11 +4,15 @@
         <meta charset="utf-8">
         <link rel="stylesheet" href="stats.css" type="text/css"/>
         <link rel="stylesheet" href="../includes/bootstrap-5.1.1-dist/css/bootstrap.css"/>
+        <link href="../includes/font-awesome-4.0.3/css/font-awesome.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="../includes/cytoscape.js-panzoom.css"/>
+
         <script src="../includes/jquery-3.6.0.js" defer></script>
         <script src="../includes/bootstrap-5.1.1-dist/js/bootstrap.bundle.js" defer></script>
         <script src="../demo-skills.js" defer></script>
         <script src="stats.js" defer></script>
-        <script src="../includes/cytoscape.umd.js"></script>
+        <script src="../includes/cytoscape.umd.js" defer></script>
+        <script src="../includes/cytoscape-panzoom.js" defer></script> 
     </head>
     <body>
         <div class="container-fluid">
@@ -51,10 +55,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm">
+                <div class="col-sm-1"></div>
+                <div id="cy-container" class="col-sm-10">
                     <div id="cy">
                     </div>
                 </div>
+                <div class="col-sm-1"></div>
             </div>
             <div class="row">
                 <div class="col-4-sm">                
