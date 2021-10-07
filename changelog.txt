@@ -1,3 +1,7 @@
+1.1.7
+ - Fix some edges not drawing
+ - Fix typos in demo data
+
 1.1.6
 - Add panzoom widget to graph
 - Some styling of stats page

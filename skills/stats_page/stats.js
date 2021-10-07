@@ -529,6 +529,10 @@ function showGraph(){
         if (found != -1){
             //console.log('increasing index; ');
             countedSkills[found].skillCount += 1;
+            //increase the size of the node.
+            console.log('Increasing size');
+            //let incNode = cy.getElementById(loadedSkillsArray[i].skillName.toLowerCase());
+            //incNode.data('size', parseInt(incNode.data('size')) + 50); 
         }
         else{
             newSkill = {
@@ -549,12 +553,26 @@ function showGraph(){
     }
 
     //second loop for adding edges to graph
+    let sameJobSkills = [];
     for (var i = 0; i < loadedSkillsArray.length; i++){
-        //draw arraows in graph
-        if ((loadedSkillsArray[i].uri == currentURL) && (i > 0)){
-            //make new arrow
-            if(loadedSkillsArray[i].skillName !== '' && loadedSkillsArray[i-1].skillName !== ''){
-                cy.add({ group: 'edges', data: { id:i, source: loadedSkillsArray[i].skillName.toLowerCase(), target: loadedSkillsArray[i-1].skillName.toLowerCase()}});
+        if(loadedSkillsArray[i].uri !== currentURL){
+            //next job started
+            sameJobSkills = [];
+        }        
+        sameJobSkills.push(loadedSkillsArray[i].skillName);
+        if(sameJobSkills.length > 1){
+            for (let j = 0; j < sameJobSkills.length; j++){
+                if(loadedSkillsArray[i].skillName.toLowerCase() !== sameJobSkills[j].toLowerCase()){
+                    //check if nodes already connected
+                    let node1 = cy.getElementById(loadedSkillsArray[i].skillName.toLowerCase());
+                    let node2 = cy.getElementById(sameJobSkills[j].toLowerCase());
+                    if(node1.edgesWith(node2).length > 0){
+                        continue;
+                    }
+                    else{
+                        cy.add({ group: 'edges', data: { id: loadedSkillsArray[i].skillName.toLowerCase() + i + j, source: loadedSkillsArray[i].skillName.toLowerCase(), target: sameJobSkills[j].toLowerCase()}});
+                    }                    
+                }
             }
         }
         currentURL = loadedSkillsArray[i].uri;
