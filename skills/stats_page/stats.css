@@ -2,6 +2,11 @@ body {
     padding: 2em;
 }
 
+td {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
 #all-skills-tbody td {
     border: 1px black solid;
 }

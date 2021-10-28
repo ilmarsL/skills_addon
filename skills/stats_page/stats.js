@@ -211,7 +211,14 @@ function showAllEntries(skillsArray){
         newRow.append(newJobTitle);
 
         let newDate = document.createElement('td');
-        newDate.innerText = skillsArray[i].date;
+        saveDate = new Date(skillsArray[i].date);
+        
+        newDate.innerText = saveDate.getFullYear() + '-' 
+        + ((((saveDate.getMonth()+1) < 10) ? ('0' + (saveDate.getMonth() + 1).toString()) : (saveDate.getMonth() + 1).toString())) + '-' 
+        + ((saveDate.getDate() < 10) ? ('0' + saveDate.getDate().toString()) : saveDate.getDate().toString()) + ' ' 
+        + ((saveDate.getHours() < 10) ? ('0' + saveDate.getHours().toString()) : saveDate.getHours().toString()) + ':' 
+        + ((saveDate.getMinutes() < 10) ? ('0' + saveDate.getMinutes().toString()) : saveDate.getMinutes().toString());
+
         newRow.append(newDate);
         curSkillContainer.append(newRow);
 
@@ -288,7 +295,7 @@ function editSkill(e){
     let skillName = e.target.parentElement.parentElement.childNodes[0].innerText;
     let skillURL = e.target.parentElement.parentElement.childNodes[1].firstChild.href;
     let jobTitle = e.target.parentElement.parentElement.childNodes[2].innerText;
-    let skillDate = e.target.parentElement.parentElement.childNodes[3].innerText;
+    const skillDate = new Date(e.target.parentElement.parentElement.childNodes[3].innerText);
     $('#skillNameEdit').val(skillName);
     if(skillURL.indexOf('demo') !== -1){
         //fix for demo skills 
@@ -298,10 +305,15 @@ function editSkill(e){
         $('#skillURLEdit').val(skillURL);
     }    
     $('#skillJTitleEdit').val(jobTitle);
-    console.log('Setting date to' + skillDate);
-    document.getElementById('skillDateEdit').valueAsDate = new Date(skillDate);
-    console.log(skillName);
-    console.log(skillURL);
+    
+    //Set date and time fields
+    document.getElementById('skillDateEdit').valueAsDate = skillDate;
+
+    const timeString = ((skillDate.getHours() < 10) ? ('0' + skillDate.getHours()) : skillDate.getHours()) + ':' + 
+    ((skillDate.getMinutes() < 10) ? ('0' + skillDate.getMinutes()) : skillDate.getMinutes());
+    
+    document.getElementById('skillTimeEdit').value = timeString;
+
     //set id for later use with save button
     $('#saveButton').attr('data-arrayIndex', e.target.getAttribute('data-arrayIndex'));
     $('#exampleModal').modal('show');
@@ -329,12 +341,16 @@ function deleteSkill(e){
 //Called when save button on modal is pressed
 function saveEditedSkill(){
     let aIndex = $('#saveButton').attr('data-arrayIndex');
-    console.log(aIndex);
-    console.log(loadedSkillsArray);
+    
     loadedSkillsArray[aIndex].skillName = $('#skillNameEdit').val();
     loadedSkillsArray[aIndex].uri = $('#skillURLEdit').val();
     loadedSkillsArray[aIndex].jobTitle = $('#skillJTitleEdit').val();
-    loadedSkillsArray[aIndex].date = $('#skillDateEdit').val();
+
+    //Date format YYYY-MM-DD HH:mm
+    const dateString = document.getElementById('skillDateEdit').value;
+    const timeString = document.getElementById('skillTimeEdit').value;
+    loadedSkillsArray[aIndex].date = dateString + ' ' + timeString;
+
     //save everything and reload
     browser.storage.local.set({ 'skills': loadedSkillsArray })
             .then(() => {
@@ -474,21 +490,6 @@ function showRelatedSkills(e){
     }
 }
 
-function makeDemo(){
-    let jobsFound = 0;
-    let prevUri = '';
-    for(let i = 0; i < loadedSkillsArray.length; i++){
-        if ((loadedSkillsArray[i].uri !== prevUri) && (prevUri !== '')){
-            jobsFound++;
-        }
-        prevUri = loadedSkillsArray[i].uri;
-        loadedSkillsArray[i].uri = 'demo' + jobsFound;
-    }
-    showAllEntries(loadedSkillsArray);
-    countSkills(loadedSkillsArray);
-    showGraph();
-}
-
 function showGraph(){
     //count duplicates
     let countedSkills = []; //array of objects {skillName, skillCount}
@@ -570,7 +571,10 @@ function showGraph(){
                         continue;
                     }
                     else{
-                        cy.add({ group: 'edges', data: { id: loadedSkillsArray[i].skillName.toLowerCase() + i + j, source: loadedSkillsArray[i].skillName.toLowerCase(), target: sameJobSkills[j].toLowerCase()}});
+                        cy.add({ group: 'edges', data: { 
+                            id: loadedSkillsArray[i].skillName.toLowerCase() + i + j, 
+                            source: loadedSkillsArray[i].skillName.toLowerCase(), 
+                            target: sameJobSkills[j].toLowerCase()}});
                     }                    
                 }
             }
