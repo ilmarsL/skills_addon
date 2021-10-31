@@ -2,7 +2,7 @@ var loadedSkillsArray;
 var cy;
 
 $( document ).ready(function(){
-    console.log('Start');
+    const displayGraphButon = document.querySelector('#display-graph');
     //Initialize on open
     browser.storage.local.get(['skills', 'useDemo'])
         .then((skillsData) => {
@@ -24,7 +24,7 @@ $( document ).ready(function(){
                     countSkills(loadedSkillsArray);
                     //check the demo box
                     document.getElementById('demo-data').checked = true;
-                    showGraph();
+                    displayGraphButon.removeAttribute('disabled');
                     browser.storage.local.set({'useDemo' : true})
                     .catch((error)=>{
                         console.log('Failed to set useDemo in localStorage');
@@ -54,7 +54,7 @@ $( document ).ready(function(){
                             countSkills(loadedSkillsArray);
                             //save data
                             browser.storage.local.set({ 'skills': loadedSkillsArray }); //TODO re-write this to properly use promises
-                            showGraph();
+                            displayGraphButon.removeAttribute('disabled');
                     })
                     .catch((e)=>{
                         console.log('Failed to set demo');
@@ -67,7 +67,7 @@ $( document ).ready(function(){
                     showAllEntries(skillsData.skills);
                     countSkills(skillsData.skills);
                     loadedSkillsArray = skillsData.skills;
-                    showGraph();
+                    displayGraphButon.removeAttribute('disabled');
                 }             
             } 
         })
@@ -132,11 +132,11 @@ $( document ).ready(function(){
         }
     
     //Close edit box handler
-    $('#closeButton').on('click', ()=>{
+    $('#close-button').on('click', ()=>{
         console.log('Closing modal');
-        $('#exampleModal').modal('hide');
+        $('#edit-skill-modal').modal('hide');
     });
-    $('#saveButton').on('click',saveEditedSkill);
+    $('#save-button').on('click',saveEditedSkill);
 
     //show all link
     document.getElementById('show-all').addEventListener('click', (e)=>{
@@ -184,6 +184,12 @@ $( document ).ready(function(){
                     console.log(error);
                     console.log('Failed to write to localstorage!');
                 });  
+    });
+
+    displayGraphButon.addEventListener('click', () =>{
+        const cyRow = document.querySelector('#cy-container-row');
+        cyRow.style.display = 'flex';
+        showGraph();
     });
 });//end of ready()
 
@@ -296,27 +302,27 @@ function editSkill(e){
     let skillURL = e.target.parentElement.parentElement.childNodes[1].firstChild.href;
     let jobTitle = e.target.parentElement.parentElement.childNodes[2].innerText;
     const skillDate = new Date(e.target.parentElement.parentElement.childNodes[3].innerText);
-    $('#skillNameEdit').val(skillName);
+    $('#skill-name').val(skillName);
     if(skillURL.indexOf('demo') !== -1){
         //fix for demo skills 
-        $('#skillURLEdit').val(skillURL.substr(skillURL.indexOf('demo')));
+        $('#skill-url').val(skillURL.substr(skillURL.indexOf('demo')));
     }
     else{
-        $('#skillURLEdit').val(skillURL);
+        $('#skill-url').val(skillURL);
     }    
-    $('#skillJTitleEdit').val(jobTitle);
+    $('#job-title').val(jobTitle);
     
     //Set date and time fields
-    document.getElementById('skillDateEdit').valueAsDate = skillDate;
+    document.getElementById('save-date').valueAsDate = skillDate;
 
     const timeString = ((skillDate.getHours() < 10) ? ('0' + skillDate.getHours()) : skillDate.getHours()) + ':' + 
     ((skillDate.getMinutes() < 10) ? ('0' + skillDate.getMinutes()) : skillDate.getMinutes());
     
-    document.getElementById('skillTimeEdit').value = timeString;
+    document.getElementById('save-time').value = timeString;
 
     //set id for later use with save button
-    $('#saveButton').attr('data-arrayIndex', e.target.getAttribute('data-arrayIndex'));
-    $('#exampleModal').modal('show');
+    $('#save-button').attr('data-arrayIndex', e.target.getAttribute('data-arrayIndex'));
+    $('#edit-skill-modal').modal('show');
 }
 
 /**
@@ -340,15 +346,15 @@ function deleteSkill(e){
 
 //Called when save button on modal is pressed
 function saveEditedSkill(){
-    let aIndex = $('#saveButton').attr('data-arrayIndex');
+    let aIndex = $('#save-button').attr('data-arrayIndex');
     
-    loadedSkillsArray[aIndex].skillName = $('#skillNameEdit').val();
-    loadedSkillsArray[aIndex].uri = $('#skillURLEdit').val();
-    loadedSkillsArray[aIndex].jobTitle = $('#skillJTitleEdit').val();
+    loadedSkillsArray[aIndex].skillName = $('#skill-name').val();
+    loadedSkillsArray[aIndex].uri = $('#skill-url').val();
+    loadedSkillsArray[aIndex].jobTitle = $('#job-title').val();
 
     //Date format YYYY-MM-DD HH:mm
-    const dateString = document.getElementById('skillDateEdit').value;
-    const timeString = document.getElementById('skillTimeEdit').value;
+    const dateString = document.getElementById('save-date').value;
+    const timeString = document.getElementById('save-time').value;
     loadedSkillsArray[aIndex].date = dateString + ' ' + timeString;
 
     //save everything and reload
@@ -356,7 +362,7 @@ function saveEditedSkill(){
             .then(() => {
                 showAllEntries(loadedSkillsArray);
                 countSkills(loadedSkillsArray);
-                $('#exampleModal').modal('hide');                
+                $('#edit-skill-modal').modal('hide');                
             })
             .catch((error)=>{
                 console.error(error);

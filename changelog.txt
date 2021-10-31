@@ -1,3 +1,8 @@
+
+1.1.9
+- Add 'show graph' button.
+- change some attribute names for consistency.
+
 1.1.8
 - Save time is now editable.
 - Fix how date is displayed on stats page

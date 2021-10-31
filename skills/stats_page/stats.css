@@ -16,11 +16,15 @@ td {
 }
 
 #show-all-row{
-    margin-bottom: 1em;
+    
 }
 
 #skill-count-row{
     max-height: 31em;
+}
+
+#cy-container-row {
+    display: none;
 }
 
 
@@ -32,6 +36,10 @@ td {
 
 #cy-container {
     border: 1px black solid;
+}
+
+.margin-row {
+    margin-bottom: 1em;
 }
 
 .selected-skill{

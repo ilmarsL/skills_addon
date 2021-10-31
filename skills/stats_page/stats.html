@@ -15,8 +15,7 @@
         <script src="../includes/cytoscape-panzoom.js" defer></script> 
     </head>
     <body>
-        <div class="container-fluid">
-            
+        <div class="container-fluid">            
             <div class="row overflow-hidden" id="skill-count-row">
                 <div class="col-sm">
                     <h3>Top skills:</h3>
@@ -49,13 +48,19 @@
                     </table>
                 </div>
             </div>
-            <div class="row justify-content-md-center" id="show-all-row">
+            <div class="row justify-content-md-center margin-row">
                 <div class="col-md-auto">
                     <a href="#" id="show-all">Show all</a>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-1"></div>
+            <div class="row margin-row">
+                <div class="col">
+                    <button id="display-graph" disabled>Show graph</button> (Warning, this can be slow) 
+                </div>
+            </div>
+            <div id="cy-container-row"class="row margin-row">
+                <div class="col-sm-1">
+                </div>
                 <div id="cy-container" class="col-sm-10">
                     <div id="cy">
                     </div>
@@ -97,52 +102,52 @@
             </div>
         </div>
 
-        <div class="modal" tabindex="-1" role="dialog" id="exampleModal">
+        <div class="modal" tabindex="-1" role="dialog" id="edit-skill-modal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="row">
                                 <div class="col-3">
-                                    <label for="skillNameEdit">Name: </label>
+                                    <label for="skill-name">Name: </label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" id="skillNameEdit"/> 
+                                    <input type="text" id="skill-name"/> 
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-3">
-                                    <label for="skillURLEdit">URL: </label>
+                                    <label for="skill-url">URL: </label>
                                 </div>
                                 <div class="col-9">
-                                    <textarea type="text" id="skillURLEdit"></textarea>  
+                                    <textarea type="text" id="skill-url"></textarea>  
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-3">
-                                    <label for="skillJTitleEdit">Job title: </label>
+                                    <label for="job-title">Job title: </label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" id="skillJTitleEdit"/> 
+                                    <input type="text" id="job-title"/> 
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-3">
-                                    <label for="skillDateEdit">Date: </label>
+                                    <label for="save-date">Date: </label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="date" id="skillDateEdit"/>
-                                    <label for="skillTimeEdit">
+                                    <input type="date" id="save-date"/>
+                                    <label for="save-time">
                                     Time:
-                                    <input type="time" id="skillTimeEdit" />  
+                                    <input type="time" id="save-time" />  
                                     </label>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" id="saveButton" class="btn btn-primary">Save changes</button>
-                        <button type="button" id="closeButton" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="save-button" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="close-button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
